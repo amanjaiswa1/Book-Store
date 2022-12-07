@@ -9,7 +9,7 @@ import jwt from 'jsonwebtoken';
  * @param {Object} res
  * @param {Function} next
  */
-export const userAuth = async (req, res, next) => {
+export const userPasswordAuth = async (req, res, next) => {
   try {
     let bearerToken = req.header('Authorization');
     if (!bearerToken)
@@ -19,9 +19,8 @@ export const userAuth = async (req, res, next) => {
       };
     bearerToken = bearerToken.split(' ')[1];
 
-    const { user } = await jwt.verify(bearerToken, 'your-secret-key');
-    res.locals.user = user;
-    res.locals.token = bearerToken;
+    const user = await jwt.verify(bearerToken, process.env.SECRET_KEY);
+    req.body.Email = user.Email;
     next();
   } catch (error) {
     next(error);
