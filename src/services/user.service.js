@@ -19,7 +19,7 @@ export const login = async (body) => {
   if (data != null) {
     const result = await bcrypt.compare(body.Password, data.Password);
     if (result) {
-      var token = jwt.sign({ FirstName: data.FirstName, Email: data.Email }, process.env.SECRET_KEY);
+      var token = jwt.sign({ _id: data._id, Email: data.Email }, process.env.SECRET_KEY);
       return token;
     }
     else {
