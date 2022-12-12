@@ -1,7 +1,7 @@
 import Cart from '../models/cart.model';
 import Book from '../models/book.model';
 
-//create a new user registration
+//add book to the cart
 export const addBookToCart = async (body) => {
     const findBook = await Book.findOne({ _id: body._id });
     let bookMatchFound = false;
@@ -58,7 +58,7 @@ export const addBookToCart = async (body) => {
     }
 };
 
-//create a new user registration
+//remove book from cart
 export const removeBookFromCart = async (body) => {
     const findBook = await Book.findOne({ _id: body._id });
     let bookMatchFound = false;
@@ -85,6 +85,70 @@ export const removeBookFromCart = async (body) => {
                     }
                 );
                 return removeBookFromCart;
+            }
+            else {
+                throw new Error("Book does not exist in cart")
+            }
+        }
+        else {
+            throw new Error("Cart does not exist!!!")
+        }
+    }
+    else {
+        throw new Error("Book not found!!!")
+    }
+};
+
+//remove book quantity from cart
+export const removeBookQuantity = async (body) => {
+    const findBook = await Book.findOne({ _id: body._id });
+    let bookMatchFound = false;
+    let bookQuantity = 0;
+    let calculatePrice = 0;
+    let removeBookDetails = {
+        productID: findBook._id,
+        description: findBook.description,
+        bookName: findBook.bookName,
+        bookImage: findBook.bookImage,
+        author: findBook.author,
+        price: findBook.price
+    };
+    if (findBook != null) {
+        const findCart = await Cart.findOne({ userID: body.userID });
+        if (findCart != null) {
+            findCart.books.forEach(object => {
+                if (object.productID == body._id) {
+                    object.quantity -= 1;
+                    bookQuantity = object.quantity;
+                    calculatePrice = findCart.cartTotal - object.price;
+                    bookMatchFound = true;
+                }
+            });
+            if (bookMatchFound == true) {
+                if (bookQuantity > 0) {
+                    const removeBookQuantity = await Cart.findOneAndUpdate(
+                        {
+                            _id: findCart._id
+                        },
+                        { books: findCart.books, cartTotal: calculatePrice },
+                        {
+                            new: true
+                        }
+                    );
+                    return removeBookQuantity;
+                }
+                else {
+                    const removeBookQuantity = await Cart.findOneAndUpdate(
+                        {
+                            _id: findCart._id
+                        },
+                        { $pull: { books: removeBookDetails }, cartTotal: calculatePrice },
+                        {
+                            new: true
+                        }
+                    );
+                    return removeBookQuantity;
+                }
             }
             else {
                 throw new Error("Book does not exist in cart")
