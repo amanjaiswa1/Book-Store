@@ -12,7 +12,7 @@ export const addToWishList = async (body) => {
         bookImage: findBook.bookImage,
         author: findBook.author,
         price: findBook.price
-    }
+    };
     if (findBook != null) {
         const findWishlist = await Wishlist.findOne({ userID: body.userID });
         if (findWishlist != null) {
@@ -32,7 +32,8 @@ export const addToWishList = async (body) => {
                     }
                 );
                 return addToWishList;
-            } else {
+            }
+            else {
                 const addToWishList = await Wishlist.findByIdAndUpdate(
                     {
                         _id: findWishlist._id
@@ -52,6 +53,53 @@ export const addToWishList = async (body) => {
             return createNewWishlist;
         }
     } else {
+        throw new Error("Book not found!!!")
+    }
+};
+
+//remove book from wishlist
+export const removeFromWishList = async (body) => {
+    const findBook = await Book.findOne({ _id: body._id });
+    let bookMatchFound = false;
+    let updateBookDetails = {
+        productID: findBook._id,
+        description: findBook.description,
+        bookName: findBook.bookName,
+        bookImage: findBook.bookImage,
+        author: findBook.author,
+        price: findBook.price
+    };
+    if (findBook != null) {
+        const findWishlist = await Wishlist.findOne({ userID: body.userID });
+        if (findWishlist != null) {
+            findWishlist.books.forEach(object => {
+                if (object.productID == body._id) {
+                    bookMatchFound = true;
+                }
+            });
+            if (bookMatchFound == true) {
+                const removeFromWishList = await Wishlist.findByIdAndUpdate(
+                    {
+                        _id: findWishlist._id
+                    },
+                    {
+                        $pull: { books: updateBookDetails }
+                    },
+                    {
+                        new: true
+                    }
+                );
+                return removeFromWishList;
+            }
+            else {
+                throw new Error("Book does not exist in wishlist")
+            }
+        }
+        else {
+            throw new Error("Wishlist does not exist!!!")
+        }
+    }
+    else {
         throw new Error("Book not found!!!")
     }
 };

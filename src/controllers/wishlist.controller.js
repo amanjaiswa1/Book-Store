@@ -22,3 +22,25 @@ export const addToWishList = async (req, res, next) => {
         });
     }
 };
+
+/**
+ * Controller to remove book from wishlist
+ * @param  {object} req - request object
+ * @param {object} res - response object
+ * @param {Function} next
+ */
+export const removeFromWishList = async (req, res, next) => {
+    try {
+        const data = await WishListService.removeFromWishList(req.body);
+        res.status(HttpStatus.CREATED).json({
+            code: HttpStatus.CREATED,
+            data: data,
+            message: 'Book removed from wishlist successfully'
+        });
+    } catch (error) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+            code: HttpStatus.BAD_REQUEST,
+            message: `${error}`
+        });
+    }
+};
