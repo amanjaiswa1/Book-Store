@@ -14,7 +14,7 @@ export const addBookToCart = async (body) => {
         author: findBook.author,
         price: findBook.price
     };
-    if (findBook != null) {
+    if (findBook.quantity > 0) {
         const findCart = await Cart.findOne({ userID: body.userID });
         if (findCart != null) {
             findCart.books.forEach(object => {
@@ -54,7 +54,7 @@ export const addBookToCart = async (body) => {
             return createNewCart;
         }
     } else {
-        throw new Error("Book not found!!!")
+        throw new Error("Book is not available!!!")
     }
 };
 
